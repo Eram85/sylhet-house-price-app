@@ -3,437 +3,467 @@ import pandas as pd
 import joblib
 import numpy as np
 
-# -----------------------------
+# ─────────────────────────────
 # PAGE CONFIG
-# -----------------------------
+# ─────────────────────────────
 st.set_page_config(
-    page_title="Sylhet House Price Predictor",
+    page_title="Sylhet House Price",
     page_icon="🏠",
     layout="wide"
 )
 
-# -----------------------------
-# CUSTOM CSS — Refined Dark Editorial
-# -----------------------------
+# ─────────────────────────────
+# APPLE-THEMED CSS
+# ─────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Outfit:wght@300;400;500;600&display=swap');
-
-*, *::before, *::after { box-sizing: border-box; }
+/* ── Apple SF Pro font stack ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body, [class*="css"] {
-    font-family: 'Outfit', sans-serif;
-    color: #e2d9cc;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                 "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* ── Background ── */
+/* ── Pure Apple dark mode background ── */
 .stApp {
-    background-color: #0d1117;
-    background-image:
-        radial-gradient(ellipse 80% 60% at 10% 0%, rgba(180,120,40,0.12) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 90% 100%, rgba(90,60,20,0.15) 0%, transparent 60%),
-        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c8a050' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background: #000000;
+    color: #f5f5f7;
 }
 
-/* ── Hide default Streamlit chrome ── */
+/* ── Hide Streamlit chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
-.block-container { padding-top: 0 !important; max-width: 1100px; }
-
-/* ════════════════════════════
-   HERO SECTION
-════════════════════════════ */
-.hero {
-    position: relative;
-    padding: 3.5rem 2rem 2.5rem;
-    text-align: center;
-    overflow: hidden;
+.block-container {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    max-width: 980px !important;
+    margin: 0 auto !important;
 }
 
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 1px;
-    height: 3rem;
-    background: linear-gradient(to bottom, transparent, #c8a050);
-}
-
-.hero-eyebrow {
-    display: inline-block;
-    font-size: 0.68rem;
-    font-weight: 500;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: #c8a050;
-    border: 1px solid rgba(200,160,80,0.35);
-    padding: 0.3rem 1rem;
-    border-radius: 2rem;
-    margin-bottom: 1.2rem;
-}
-
-.hero-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(2.4rem, 5vw, 3.8rem);
-    font-weight: 300;
-    line-height: 1.1;
-    color: #f0e6d3;
-    margin: 0 0 0.6rem;
-    letter-spacing: -0.01em;
-}
-
-.hero-title span {
-    color: #c8a050;
-    font-weight: 700;
-    font-style: italic;
-}
-
-.hero-desc {
-    font-size: 0.92rem;
-    color: #6b7c91;
-    max-width: 420px;
-    margin: 0 auto 2rem;
-    line-height: 1.65;
-}
-
-.hero-divider {
+/* ══════════════════════════
+   NAV BAR — Apple frosted glass
+══════════════════════════ */
+.apple-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 0 2rem;
+    height: 48px;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    max-width: 600px;
-    margin: 0 auto 2.5rem;
+    justify-content: space-between;
 }
-.hero-divider::before, .hero-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, transparent, rgba(200,160,80,0.3));
-}
-.hero-divider::after {
-    background: linear-gradient(to left, transparent, rgba(200,160,80,0.3));
-}
-.hero-divider-icon {
+.apple-nav-logo {
     font-size: 1rem;
-    opacity: 0.5;
+    font-weight: 600;
+    color: #f5f5f7;
+    letter-spacing: -0.01em;
+}
+.apple-nav-tag {
+    font-size: 0.72rem;
+    color: #6e6e73;
+    letter-spacing: 0.02em;
 }
 
-/* ════════════════════════════
-   STAT BADGES
-════════════════════════════ */
-.stat-row {
+/* ══════════════════════════
+   HERO
+══════════════════════════ */
+.hero {
+    text-align: center;
+    padding: 5rem 1.5rem 3rem;
+}
+.hero-eyebrow {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #0a84ff;
+    margin-bottom: 1rem;
+    display: block;
+}
+.hero-title {
+    font-size: clamp(2.6rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: #f5f5f7;
+    margin-bottom: 1.2rem;
+}
+.hero-title .accent {
+    background: linear-gradient(135deg, #0a84ff 0%, #30d158 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.hero-sub {
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: #86868b;
+    max-width: 480px;
+    margin: 0 auto 3rem;
+    line-height: 1.6;
+}
+.stat-strip {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 3.5rem;
+}
+.stat-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 980px;
+    padding: 0.3rem 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #98989d;
+}
+.stat-chip b { color: #f5f5f7; font-weight: 600; }
+
+/* ══════════════════════════
+   INPUT CARDS
+══════════════════════════ */
+.card {
+    background: #1c1c1e;
+    border-radius: 18px;
+    padding: 2rem 1.8rem;
+    border: 1px solid rgba(255,255,255,0.07);
+    margin-bottom: 1rem;
+    height: 100%;
+}
+.card-title {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #636366;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── Number inputs ── */
+div[data-testid="stNumberInput"] label {
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    color: #98989d !important;
+    letter-spacing: 0 !important;
+    margin-bottom: 0.25rem !important;
+}
+div[data-testid="stNumberInput"] input {
+    background: #2c2c2e !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 10px !important;
+    color: #f5f5f7 !important;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    transition: border-color 0.18s, box-shadow 0.18s !important;
+}
+div[data-testid="stNumberInput"] input:focus {
+    border-color: #0a84ff !important;
+    box-shadow: 0 0 0 3px rgba(10,132,255,0.18) !important;
+}
+div[data-testid="stNumberInput"] button {
+    background: #3a3a3c !important;
+    border: none !important;
+    color: #f5f5f7 !important;
+    border-radius: 8px !important;
+}
+div[data-testid="stNumberInput"] button:hover {
+    background: #48484a !important;
+}
+
+/* ── Radio toggles ── */
+div[data-testid="stRadio"] label {
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    color: #98989d !important;
+}
+.stRadio > div {
+    gap: 0.35rem !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+}
+.stRadio label {
+    background: #2c2c2e !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 8px !important;
+    padding: 0.3rem 0.75rem !important;
+    font-size: 0.8rem !important;
+    color: #98989d !important;
+    cursor: pointer !important;
+    transition: all 0.15s !important;
+}
+.stRadio label:has(input:checked) {
+    background: rgba(10,132,255,0.12) !important;
+    border-color: rgba(10,132,255,0.45) !important;
+    color: #0a84ff !important;
+}
+
+/* ══════════════════════════
+   CTA BUTTON — Apple pill blue
+══════════════════════════ */
+.stButton > button {
+    background: #0a84ff !important;
+    color: #ffffff !important;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    border: none !important;
+    border-radius: 980px !important;
+    padding: 0.75rem 2.5rem !important;
+    width: 100% !important;
+    transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1) !important;
+    box-shadow: 0 4px 20px rgba(10,132,255,0.4) !important;
+}
+.stButton > button:hover {
+    background: #409cff !important;
+    box-shadow: 0 6px 28px rgba(10,132,255,0.55) !important;
+    transform: scale(1.018) !important;
+}
+.stButton > button:active {
+    transform: scale(0.98) !important;
+}
+
+/* ══════════════════════════
+   RESULT CARD
+══════════════════════════ */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.result-card {
+    background: #1c1c1e;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 22px;
+    padding: 3rem 2.5rem;
+    text-align: center;
+    margin-top: 2rem;
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.5s cubic-bezier(0.34,1.2,0.64,1) both;
+}
+.result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%, rgba(10,132,255,0.6) 50%, transparent 100%);
+}
+.result-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 45% at 50% 0%,
+        rgba(10,132,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+}
+.result-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #48484a;
+    margin-bottom: 1.2rem;
+}
+.result-price-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.25rem;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+.result-sym {
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: #636366;
+    padding-top: 0.5rem;
+}
+.result-price {
+    font-size: clamp(3rem, 9vw, 5.2rem);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    color: #f5f5f7;
+}
+.result-lakh {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #0a84ff;
+    margin-bottom: 2rem;
+    letter-spacing: -0.01em;
+}
+.result-sep {
+    width: 48px;
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+    margin: 1.6rem auto;
+}
+.result-specs {
     display: flex;
     justify-content: center;
     gap: 2rem;
     flex-wrap: wrap;
-    margin-bottom: 3rem;
-    padding: 0 1rem;
 }
-.stat-badge {
-    text-align: center;
+.spec-item { text-align: center; }
+.spec-val {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f5f5f7;
+    letter-spacing: -0.01em;
 }
-.stat-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #c8a050;
-    line-height: 1;
-}
-.stat-label {
+.spec-key {
     font-size: 0.65rem;
-    letter-spacing: 0.15em;
+    font-weight: 500;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #4a5568;
+    color: #3a3a3c;
     margin-top: 0.2rem;
 }
 
-/* ════════════════════════════
-   SECTION TITLES
-════════════════════════════ */
-.section-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #c8a050;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding-bottom: 0.6rem;
-    border-bottom: 1px solid rgba(200,160,80,0.2);
-    margin-bottom: 1.4rem;
-}
-
-/* ════════════════════════════
-   INPUT PANELS
-════════════════════════════ */
-.panel {
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(200,160,80,0.12);
-    border-radius: 16px;
-    padding: 1.8rem 1.6rem;
-    backdrop-filter: blur(8px);
-    height: 100%;
-}
-
-/* Streamlit number inputs */
-div[data-testid="stNumberInput"] label {
-    font-size: 0.82rem !important;
-    font-weight: 500 !important;
-    letter-spacing: 0.04em !important;
-    text-transform: uppercase !important;
-    color: #8a99b0 !important;
-    margin-bottom: 0.2rem !important;
-}
-
-div[data-testid="stNumberInput"] input {
-    background: rgba(255,255,255,0.05) !important;
-    border: 1px solid rgba(200,160,80,0.2) !important;
-    border-radius: 8px !important;
-    color: #f0e6d3 !important;
-    font-family: 'Outfit', sans-serif !important;
-    font-size: 1rem !important;
-    transition: border-color 0.2s !important;
-}
-div[data-testid="stNumberInput"] input:focus {
-    border-color: rgba(200,160,80,0.6) !important;
-    box-shadow: 0 0 0 3px rgba(200,160,80,0.08) !important;
-}
-
-/* Stepper buttons */
-div[data-testid="stNumberInput"] button {
-    background: rgba(200,160,80,0.1) !important;
-    border-color: rgba(200,160,80,0.2) !important;
-    color: #c8a050 !important;
-}
-
-/* Toggle inputs for binary */
-.toggle-label {
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #8a99b0;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-.stRadio > div {
-    gap: 0.5rem !important;
-}
-.stRadio label {
-    background: rgba(255,255,255,0.04) !important;
-    border: 1px solid rgba(200,160,80,0.15) !important;
-    border-radius: 8px !important;
-    padding: 0.4rem 1rem !important;
-    font-size: 0.85rem !important;
-    color: #8a99b0 !important;
-    cursor: pointer !important;
-    transition: all 0.2s !important;
-}
-.stRadio label:has(input:checked) {
-    background: rgba(200,160,80,0.15) !important;
-    border-color: rgba(200,160,80,0.5) !important;
-    color: #c8a050 !important;
-}
-
-/* ════════════════════════════
-   PREDICT BUTTON
-════════════════════════════ */
-.stButton > button {
-    background: linear-gradient(135deg, #c8a050 0%, #a07830 50%, #c8a050 100%) !important;
-    background-size: 200% 100% !important;
-    color: #0d1117 !important;
-    font-family: 'Outfit', sans-serif !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.12em !important;
-    text-transform: uppercase !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 0.9rem 2rem !important;
-    width: 100% !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 4px 24px rgba(200,160,80,0.25) !important;
-}
-.stButton > button:hover {
-    background-position: 100% 0 !important;
-    box-shadow: 0 6px 32px rgba(200,160,80,0.4) !important;
-    transform: translateY(-1px) !important;
-}
-
-/* ════════════════════════════
-   RESULT CARD
-════════════════════════════ */
-.result-outer {
-    margin-top: 2rem;
-    background: linear-gradient(135deg, rgba(200,160,80,0.08) 0%, rgba(160,120,48,0.04) 100%);
-    border: 1px solid rgba(200,160,80,0.3);
-    border-radius: 20px;
-    padding: 0.15rem;
-}
-.result-inner {
-    background: rgba(13,17,23,0.85);
-    border-radius: 18px;
-    padding: 2.5rem 2rem;
-    text-align: center;
-}
-.result-label {
-    font-size: 0.68rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: #4a5568;
-    margin-bottom: 0.8rem;
-}
-.result-currency {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.1rem;
-    color: #8a7050;
-    vertical-align: top;
-    line-height: 1.8;
-}
-.result-price {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 3.6rem;
-    font-weight: 700;
-    color: #c8a050;
-    line-height: 1;
-    letter-spacing: -0.02em;
-}
-.result-unit {
-    font-size: 0.8rem;
-    color: #4a5568;
-    margin-top: 0.6rem;
-    letter-spacing: 0.1em;
-}
-.result-bar {
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(to right, #c8a050, transparent);
-    margin: 1.2rem auto;
-}
-.result-note {
-    font-size: 0.78rem;
-    color: #4a5568;
-    font-style: italic;
-}
-
-/* ════════════════════════════
-   FOOTER
-════════════════════════════ */
-.footer {
-    text-align: center;
-    padding: 2rem 1rem;
-    margin-top: 3rem;
-    border-top: 1px solid rgba(200,160,80,0.08);
-}
-.footer-text {
-    font-size: 0.72rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: #2d3748;
-}
-.footer-dot {
-    margin: 0 0.6rem;
-    color: #c8a050;
-    opacity: 0.4;
-}
-
-/* Success message */
+/* Success alert */
 div[data-testid="stAlert"] {
-    background: rgba(200,160,80,0.08) !important;
-    border: 1px solid rgba(200,160,80,0.25) !important;
-    color: #c8a050 !important;
-    border-radius: 10px !important;
+    background: rgba(48,209,88,0.07) !important;
+    border: 1px solid rgba(48,209,88,0.2) !important;
+    color: #30d158 !important;
+    border-radius: 12px !important;
+    font-size: 0.84rem !important;
 }
 
+/* ══════════════════════════
+   FOOTER
+══════════════════════════ */
+.apple-footer {
+    text-align: center;
+    padding: 3rem 1.5rem 2.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 5rem;
+}
+.apple-footer p {
+    font-size: 0.72rem;
+    color: #3a3a3c;
+    line-height: 2;
+}
+
+/* ══════════════════════════
+   MOBILE
+══════════════════════════ */
+@media (max-width: 768px) {
+    .block-container {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    .hero { padding: 3rem 1rem 2rem; }
+    .hero-sub { font-size: 0.92rem; }
+    div[data-testid="column"] {
+        width: 100% !important;
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+    }
+    .card { padding: 1.4rem 1.1rem; }
+    .result-card { padding: 2rem 1.4rem; }
+    .result-specs { gap: 1.2rem; }
+}
+@media (max-width: 480px) {
+    .hero-title { font-size: 2rem !important; letter-spacing: -0.025em !important; }
+}
+
+html { scroll-behavior: smooth; }
+#result-anchor { scroll-margin-top: 5rem; }
 </style>
 """, unsafe_allow_html=True)
 
-# -----------------------------
+# ─────────────────────────────
 # LOAD MODEL
-# -----------------------------
+# ─────────────────────────────
 @st.cache_resource
 def load_model():
     return joblib.load("gbm_house_price_model.pkl")
 
 model = load_model()
 
-# -----------------------------
+# ─────────────────────────────
+# NAV BAR
+# ─────────────────────────────
+st.markdown("""
+<div class="apple-nav">
+    <div class="apple-nav-logo">🏠 Sylhet Real Estate</div>
+    <div class="apple-nav-tag">AI Price Estimator</div>
+</div>
+""", unsafe_allow_html=True)
+
+# ─────────────────────────────
 # HERO
-# -----------------------------
+# ─────────────────────────────
 st.markdown("""
 <div class="hero">
-    <div class="hero-eyebrow">✦ AI-Powered Valuation</div>
-    <h1 class="hero-title">Sylhet <span>Real Estate</span><br>Price Estimator</h1>
-    <p class="hero-desc">
-        Enter your property details below for an instant machine-learning estimate
-        based on Sylhet's current real estate market.
+    <span class="hero-eyebrow">Powered by Machine Learning</span>
+    <h1 class="hero-title">Know your home's<br><span class="accent">true value.</span></h1>
+    <p class="hero-sub">
+        Enter your property details for an instant AI-powered price estimate
+        calibrated to Sylhet's real estate market.
     </p>
-    <div class="hero-divider"><span class="hero-divider-icon">◆</span></div>
-</div>
-
-<div class="stat-row">
-    <div class="stat-badge">
-        <div class="stat-num">GBM</div>
-        <div class="stat-label">Model</div>
-    </div>
-    <div class="stat-badge">
-        <div class="stat-num">9</div>
-        <div class="stat-label">Features</div>
-    </div>
-    <div class="stat-badge">
-        <div class="stat-num">BDT</div>
-        <div class="stat-label">Currency</div>
-    </div>
-    <div class="stat-badge">
-        <div class="stat-num">Sylhet</div>
-        <div class="stat-label">Market</div>
+    <div class="stat-strip">
+        <div class="stat-chip"><b>GBM</b> Model</div>
+        <div class="stat-chip"><b>9</b> Features</div>
+        <div class="stat-chip"><b>BDT</b> Currency</div>
+        <div class="stat-chip"><b>Sylhet</b> Market</div>
+        <div class="stat-chip">Instant <b>Results</b></div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# -----------------------------
-# INPUTS
-# -----------------------------
-left, right = st.columns(2, gap="large")
+# ─────────────────────────────
+# INPUT CARDS
+# ─────────────────────────────
+left, right = st.columns(2, gap="medium")
 
 with left:
-    st.markdown('<div class="panel">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">🏗 Property Details</div>', unsafe_allow_html=True)
-    size      = st.number_input("Size (sqft)",     300,  15000, 1500, step=50)
-    bedrooms  = st.number_input("Bedrooms",          1,     10,    3)
-    bathrooms = st.number_input("Bathrooms",         1,      8,    2)
-    floor     = st.number_input("Floor Number",      0,     30,    5)
+    st.markdown('<div class="card"><div class="card-title">Property Details</div>', unsafe_allow_html=True)
+    size      = st.number_input("Size (sqft)",      300, 15000, 1500, step=50)
+    bedrooms  = st.number_input("Bedrooms",           1,    10,    3)
+    bathrooms = st.number_input("Bathrooms",          1,     8,    2)
+    floor     = st.number_input("Floor Number",       0,    30,    5)
     st.markdown('</div>', unsafe_allow_html=True)
 
 with right:
-    st.markdown('<div class="panel">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">⚙ Amenities & Features</div>', unsafe_allow_html=True)
-    balcony   = st.number_input("Balcony",  0, 5, 1)
-    parking   = st.number_input("Parking",  0, 5, 1)
+    st.markdown('<div class="card"><div class="card-title">Amenities</div>', unsafe_allow_html=True)
+    balcony = st.number_input("Balconies",        0, 5, 1)
+    parking = st.number_input("Parking Spaces",   0, 5, 1)
+    st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
 
     col_a, col_b, col_c = st.columns(3)
     with col_a:
-        lift_opt = st.radio("Lift", ["No", "Yes"], index=1, horizontal=False)
+        lift_opt = st.radio("Lift",      ["No", "Yes"], index=1)
         lift = 1 if lift_opt == "Yes" else 0
     with col_b:
-        cctv_opt = st.radio("CCTV", ["No", "Yes"], index=0, horizontal=False)
+        cctv_opt = st.radio("CCTV",      ["No", "Yes"], index=0)
         cctv = 1 if cctv_opt == "Yes" else 0
     with col_c:
-        gen_opt = st.radio("Generator", ["No", "Yes"], index=0, horizontal=False)
+        gen_opt  = st.radio("Generator", ["No", "Yes"], index=0)
         generator = 1 if gen_opt == "Yes" else 0
-
     st.markdown('</div>', unsafe_allow_html=True)
 
-# -----------------------------
-# PREDICT BUTTON
-# -----------------------------
-st.markdown("<br>", unsafe_allow_html=True)
+# ─────────────────────────────
+# BUTTON
+# ─────────────────────────────
+st.markdown("<div style='height:1.5rem'></div>", unsafe_allow_html=True)
 _, btn_col, _ = st.columns([1, 2, 1])
-
 with btn_col:
-    predict = st.button("✦ Estimate Property Value")
+    predict = st.button("Get Price Estimate  →")
 
-# -----------------------------
-# PREDICTION OUTPUT
-# -----------------------------
+# ─────────────────────────────
+# RESULT + AUTO-SCROLL
+# ─────────────────────────────
 if predict:
     input_data = pd.DataFrame([{
         "Size (sqft)": size,
@@ -448,47 +478,90 @@ if predict:
     }])
 
     prediction = model.predict(input_data)[0]
-    price_formatted = f"{int(prediction):,}"
+    price_fmt  = f"{int(prediction):,}"
 
-    # Format as crore/lakh for readability
     if prediction >= 1_00_00_000:
-        crore = prediction / 1_00_00_000
-        readable = f"≈ {crore:.2f} Crore BDT"
+        readable = f"≈ {prediction/1_00_00_000:.2f} Crore BDT"
     elif prediction >= 1_00_000:
-        lakh = prediction / 1_00_000
-        readable = f"≈ {lakh:.1f} Lakh BDT"
+        readable = f"≈ {prediction/1_00_000:.1f} Lakh BDT"
     else:
         readable = ""
 
+    lift_icon = "✓" if lift else "–"
+    cctv_icon = "✓" if cctv else "–"
+    gen_icon  = "✓" if generator else "–"
+
+    readable_html = f'<div class="result-lakh">{readable}</div>' if readable else '<div style="height:0.5rem"></div>'
+
     st.markdown(f"""
-    <div class="result-outer">
-      <div class="result-inner">
-        <div class="result-label">Estimated Market Value</div>
-        <div>
-          <span class="result-currency">৳</span>
-          <span class="result-price">{price_formatted}</span>
+    <div id="result-anchor"></div>
+    <div class="result-card">
+        <div class="result-eyebrow">Estimated Market Value</div>
+        <div class="result-price-row">
+            <span class="result-sym">৳</span>
+            <span class="result-price">{price_fmt}</span>
         </div>
-        {"<div class='result-unit'>" + readable + "</div>" if readable else ""}
-        <div class="result-bar"></div>
-        <div class="result-note">Based on {bedrooms}BR / {bathrooms}BA · {size:,} sqft · Floor {floor}</div>
-      </div>
+        {readable_html}
+        <div class="result-sep"></div>
+        <div class="result-specs">
+            <div class="spec-item">
+                <div class="spec-val">{size:,}</div>
+                <div class="spec-key">sqft</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-val">{bedrooms}BR · {bathrooms}BA</div>
+                <div class="spec-key">Layout</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-val">Floor {floor}</div>
+                <div class="spec-key">Level</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-val">{lift_icon} {cctv_icon} {gen_icon}</div>
+                <div class="spec-key">Lift · CCTV · Gen</div>
+            </div>
+        </div>
     </div>
+
+    <script>
+    (function() {{
+        function doScroll() {{
+            // Try scrolling within the iframe first
+            var el = document.getElementById('result-anchor');
+            if (el) {{
+                el.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+                return;
+            }}
+            // Fallback: scroll the parent Streamlit container
+            try {{
+                var containers = [
+                    window.parent.document.querySelector('[data-testid="stAppViewContainer"]'),
+                    window.parent.document.querySelector('section.main'),
+                    window.parent.document.querySelector('.main'),
+                    window.parent.document.body
+                ];
+                for (var i = 0; i < containers.length; i++) {{
+                    if (containers[i]) {{
+                        containers[i].scrollTo({{ top: containers[i].scrollHeight, behavior: 'smooth' }});
+                        break;
+                    }}
+                }}
+            }} catch(e) {{}}
+        }}
+        setTimeout(doScroll, 150);
+    }})();
+    </script>
     """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.success("✔ Prediction completed — powered by Gradient Boosting Machine")
+    st.markdown("<div style='height:0.6rem'></div>", unsafe_allow_html=True)
+    st.success("✓ Estimate ready  ·  Gradient Boosting Machine  ·  For reference only")
 
-# -----------------------------
+# ─────────────────────────────
 # FOOTER
-# -----------------------------
+# ─────────────────────────────
 st.markdown("""
-<div class="footer">
-    <div class="footer-text">
-        Sylhet Real Estate Estimator
-        <span class="footer-dot">◆</span>
-        ML Price Prediction
-        <span class="footer-dot">◆</span>
-        For Reference Only
-    </div>
+<div class="apple-footer">
+    <p>Copyright © 2025 Sylhet Real Estate Estimator. All rights reserved.</p>
+    <p>For informational purposes only · Not financial advice · Sylhet, Bangladesh</p>
 </div>
 """, unsafe_allow_html=True)
