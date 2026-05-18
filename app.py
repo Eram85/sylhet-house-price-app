@@ -581,7 +581,7 @@ if predict:
 # ─────────────────────────────
 st.markdown("""
 <div class="apple-footer">
-    <p>Copyright © 2025 Sylhet Real Estate Estimator. All rights reserved.</p>
+    <p>Copyright © 2026 Sylhet Real Estate Estimator. All rights reserved.</p>
     <p>For informational purposes only · Not financial advice · Sylhet, Bangladesh</p>
 </div>
 """, unsafe_allow_html=True)
