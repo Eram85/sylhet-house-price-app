@@ -39,15 +39,6 @@ html, body, [class*="css"] {
     padding-bottom: 0 !important;
     max-width: 980px !important;
     margin: 0 auto !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-}
-
-section[data-testid="stSidebar"] { display: none !important; }
-
-.main > div:first-child {
-    display: flex;
-    justify-content: center;
 }
 
 /* ══════════════════════════
@@ -117,7 +108,11 @@ section[data-testid="stSidebar"] { display: none !important; }
     margin: 0 auto 3rem auto;
     line-height: 1.6;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
 .stat-strip {
     display: flex;
     justify-content: center;
@@ -480,9 +475,13 @@ with right:
 # BUTTON
 # ─────────────────────────────
 st.markdown("<div style='height:1.5rem'></div>", unsafe_allow_html=True)
-_, btn_col, _ = st.columns([1, 2, 1])
-with btn_col:
-    predict = st.button("Get Price Estimate  →")
+btn_container = st.container()
+
+with btn_container:
+    col1, col2, col3 = st.columns([1.5, 2, 1.5])
+
+    with col2:
+        predict = st.button("Get Price Estimate  →")
 
 # ─────────────────────────────
 # RESULT + AUTO-SCROLL
