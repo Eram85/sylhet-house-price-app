@@ -108,11 +108,7 @@ html, body, [class*="css"] {
     margin: 0 auto 3rem auto;
     line-height: 1.6;
     text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
-
 .stat-strip {
     display: flex;
     justify-content: center;
@@ -475,13 +471,9 @@ with right:
 # BUTTON
 # ─────────────────────────────
 st.markdown("<div style='height:1.5rem'></div>", unsafe_allow_html=True)
-btn_container = st.container()
-
-with btn_container:
-    col1, col2, col3 = st.columns([1.5, 2, 1.5])
-
-    with col2:
-        predict = st.button("Get Price Estimate  →")
+_, btn_col, _ = st.columns([1, 2, 1])
+with btn_col:
+    predict = st.button("Get Price Estimate  →")
 
 # ─────────────────────────────
 # RESULT + AUTO-SCROLL
