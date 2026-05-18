@@ -39,6 +39,15 @@ html, body, [class*="css"] {
     padding-bottom: 0 !important;
     max-width: 980px !important;
     margin: 0 auto !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+section[data-testid="stSidebar"] { display: none !important; }
+
+.main > div:first-child {
+    display: flex;
+    justify-content: center;
 }
 
 /* ══════════════════════════
