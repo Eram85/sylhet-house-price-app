@@ -107,6 +107,7 @@ html, body, [class*="css"] {
     max-width: 480px;
     margin: 0 auto 3rem auto;
     line-height: 1.6;
+    text-align: center;
 }
 .stat-strip {
     display: flex;
@@ -546,13 +547,11 @@ if predict:
     <script>
     (function() {{
         function doScroll() {{
-            // Try scrolling within the iframe first
             var el = document.getElementById('result-anchor');
             if (el) {{
                 el.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
                 return;
             }}
-            // Fallback: scroll the parent Streamlit container
             try {{
                 var containers = [
                     window.parent.document.querySelector('[data-testid="stAppViewContainer"]'),
