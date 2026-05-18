@@ -105,7 +105,7 @@ html, body, [class*="css"] {
     font-weight: 400;
     color: #86868b;
     max-width: 480px;
-    margin: 0 auto 3rem;
+    margin: 0 auto 3rem auto;
     line-height: 1.6;
 }
 .stat-strip {
