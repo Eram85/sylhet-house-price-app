@@ -192,14 +192,14 @@ html { scroll-behavior: smooth; }
 # ─────────────────────────────
 @st.cache_resource
 def load_model():
-    model   = joblib.load("xgb_house_price_model.pkl")
+    model   = joblib.load("gbm_house_price_model.pkl")
     columns = joblib.load("model_columns.pkl")
     scaler  = joblib.load("scaler.pkl")
     # RMSE saved from model.py for confidence interval
     try:
         rmse = joblib.load("xgb_rmse.pkl")
     except FileNotFoundError:
-        rmse = 1_500_000   # fallback: 15 Lakh BDT
+        rmse = 2_797_746   # fallback: GBM test RMSE
     return model, columns, scaler, rmse
 
 model, model_columns, scaler, xgb_rmse = load_model()
@@ -238,7 +238,7 @@ st.markdown("""
         calibrated to Sylhet's real estate market.
     </p>
     <div class="stat-strip">
-        <div class="stat-chip"><b>XGBoost</b> Model</div>
+        <div class="stat-chip"><b>Gradient Boosting</b> Model</div>
         <div class="stat-chip"><b>12</b> Features</div>
         <div class="stat-chip"><b>BDT</b> Currency</div>
         <div class="stat-chip"><b>Sylhet</b> Market</div>
@@ -395,7 +395,7 @@ if predict:
     """, unsafe_allow_html=True)
 
     st.markdown("<div style='height:0.6rem'></div>", unsafe_allow_html=True)
-    st.success("✓ Estimate ready  ·  XGBoost Model  ·  For reference only")
+    st.success("✓ Estimate ready  ·  Gradient Boosting Model  ·  For reference only")
 
 # ─────────────────────────────
 # MODEL PERFORMANCE METRICS
