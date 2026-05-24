@@ -398,6 +398,76 @@ if predict:
     st.success("✓ Estimate ready  ·  XGBoost Model  ·  For reference only")
 
 # ─────────────────────────────
+# MODEL PERFORMANCE METRICS
+# ─────────────────────────────
+import json, os
+
+st.markdown("<div style='height:3rem'></div>", unsafe_allow_html=True)
+st.markdown("""
+<div style='text-align:center; margin-bottom:1.5rem;'>
+    <span style='font-size:0.68rem; font-weight:600; letter-spacing:0.1em;
+                 text-transform:uppercase; color:#636366;'>
+        Model Performance — Test Set Results
+    </span>
+</div>
+""", unsafe_allow_html=True)
+
+metrics_path = "model_metrics.json"
+if os.path.exists(metrics_path):
+    with open(metrics_path) as f:
+        all_metrics = json.load(f)
+
+    # Sort by R² descending
+    sorted_models = sorted(all_metrics.items(), key=lambda x: x[1]["R2"], reverse=True)
+    best_name = sorted_models[0][0]
+
+    rows_html = ""
+    for name, m in sorted_models:
+        highlight = "background:rgba(10,132,255,0.08); border:1px solid rgba(10,132,255,0.25);" if name == best_name else "background:#1c1c1e; border:1px solid rgba(255,255,255,0.07);"
+        badge = " <span style='font-size:0.6rem;background:#0a84ff;color:#fff;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle;'>BEST</span>" if name == best_name else ""
+        rows_html += f"""
+        <tr style='{highlight} border-radius:10px;'>
+            <td style='padding:0.6rem 1rem; font-size:0.82rem; color:#f5f5f7; font-weight:{"600" if name==best_name else "400"};'>{name}{badge}</td>
+            <td style='padding:0.6rem 1rem; text-align:center; font-size:0.82rem; color:{"#30d158" if name==best_name else "#98989d"}; font-weight:600;'>{m["R2"]:.4f}</td>
+            <td style='padding:0.6rem 1rem; text-align:center; font-size:0.82rem; color:#98989d;'>৳ {m["MAE"]:,}</td>
+            <td style='padding:0.6rem 1rem; text-align:center; font-size:0.82rem; color:#98989d;'>৳ {m["RMSE"]:,}</td>
+        </tr>"""
+
+    st.markdown(f"""
+    <div style='background:#1c1c1e; border-radius:18px; padding:1.5rem;
+                border:1px solid rgba(255,255,255,0.07); overflow-x:auto;'>
+        <table style='width:100%; border-collapse:separate; border-spacing:0 4px;'>
+            <thead>
+                <tr>
+                    <th style='padding:0.4rem 1rem; text-align:left; font-size:0.65rem;
+                               font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+                               color:#48484a;'>Model</th>
+                    <th style='padding:0.4rem 1rem; text-align:center; font-size:0.65rem;
+                               font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+                               color:#48484a;'>R²</th>
+                    <th style='padding:0.4rem 1rem; text-align:center; font-size:0.65rem;
+                               font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+                               color:#48484a;'>MAE (BDT)</th>
+                    <th style='padding:0.4rem 1rem; text-align:center; font-size:0.65rem;
+                               font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+                               color:#48484a;'>RMSE (BDT)</th>
+                </tr>
+            </thead>
+            <tbody>{rows_html}</tbody>
+        </table>
+    </div>
+    <p style='text-align:center; font-size:0.68rem; color:#3a3a3c; margin-top:0.75rem;'>
+        Evaluated on held-out test set (20% of data) · No data leakage · 60/20/20 split
+    </p>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <div style='text-align:center; color:#48484a; font-size:0.8rem; padding:1rem;'>
+        Run <code>model.py</code> to generate model_metrics.json
+    </div>
+    """, unsafe_allow_html=True)
+
+# ─────────────────────────────
 # FOOTER
 # ─────────────────────────────
 st.markdown("""
