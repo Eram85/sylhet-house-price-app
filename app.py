@@ -199,10 +199,10 @@ def load_model():
     try:
         rmse = joblib.load("xgb_rmse.pkl")
     except FileNotFoundError:
-        rmse = 2_797_746   # fallback: GBM test RMSE
+        rmse = 2_797_745   # fallback: GBM test RMSE
     return model, columns, scaler, rmse
 
-model, model_columns, scaler, xgb_rmse = load_model()
+model, model_columns, scaler, gbm_rmse = load_model()
 
 LOCATIONS = [
     "Akhalia, Sylhet", "Ambarkhana, Sylhet", "Bagbari, Sylhet",
@@ -317,8 +317,8 @@ if predict:
     prediction = np.exp(log_pred)
 
     # Confidence interval: point estimate ± 1 RMSE
-    price_low  = max(0, prediction - xgb_rmse)
-    price_high = prediction + xgb_rmse
+    price_low  = max(0, prediction - gbm_rmse)
+    price_high = prediction + gbm_rmse
 
     def fmt_readable(p):
         if p >= 1_00_00_000:
