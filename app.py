@@ -197,7 +197,7 @@ def load_model():
     scaler  = joblib.load("scaler.pkl")
     # RMSE saved from model.py for confidence interval
     try:
-        rmse = joblib.load("xgb_rmse.pkl")
+        rmse = joblib.load("gbm_rmse.pkl")
     except FileNotFoundError:
         rmse = 2_797_745   # fallback: GBM test RMSE
     return model, columns, scaler, rmse
