@@ -587,7 +587,7 @@ with form_col:
 # PREDICT BUTTON
 # ─────────────────────────────
 st.markdown("<div style='height:2rem'></div>", unsafe_allow_html=True)
-_, btn_col, _ = st.columns([1, 2, 1])
+_, btn_col, _ = st.columns([3, 2, 3])
 with btn_col:
     predict = st.button("✦  Estimate Price  ✦")
 
