@@ -468,7 +468,6 @@ st.markdown("""
         <span>Market</span>
         <span>About</span>
     </div>
-    <div class="nav-badge">AI Beta</div>
 </div>
 """, unsafe_allow_html=True)
 
