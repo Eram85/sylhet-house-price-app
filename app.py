@@ -192,16 +192,18 @@ html { scroll-behavior: smooth; }
 # ─────────────────────────────
 @st.cache_resource
 def load_model():
-    bundle = joblib.load("gbm_bundle.pkl")
+    import os
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(base_dir, "gbm_bundle.pkl")
+
+    bundle = joblib.load(model_path)
 
     model = bundle["model"]
     columns = bundle["columns"]
     rmse = bundle.get("rmse", 2_797_745)
 
     return model, columns, rmse
-
-
-model, model_columns, gbm_rmse = load_model()
 
 LOCATIONS = [
     "Akhalia, Sylhet", "Ambarkhana, Sylhet", "Bagbari, Sylhet",
