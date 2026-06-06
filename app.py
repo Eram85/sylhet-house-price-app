@@ -149,19 +149,24 @@ div[data-testid="stSelectbox"] label {
 .amenity-state-off { font-size: 0.65rem; color: #48484a; display: block; margin-top: 0.15rem; }
 .amenity-state-on  { font-size: 0.65rem; color: #30d158; display: block; margin-top: 0.15rem; }
 
-/* Override Streamlit button inside amenity grid */
+/* ── ALL BUTTONS: base reset ── */
 div[data-testid="stButton"] > button {
     background: transparent !important;
     border: none !important;
-    padding: 0 !important;
+    box-shadow: none !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    padding: 0.4rem !important;
     width: 100% !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
+    cursor: pointer !important;
+    border-radius: 14px !important;
+    margin-top: -0.3rem !important;
 }
-div[data-testid="stButton"] > button:hover {
-    background: transparent !important;
+div[data-testid="stButton"] > button:hover,
+div[data-testid="stButton"] > button:focus {
+    background: rgba(255,255,255,0.04) !important;
     box-shadow: none !important;
-    transform: none !important;
+    border: none !important;
 }
 
 /* ── PREDICT BUTTON ── */
@@ -170,17 +175,18 @@ div[data-testid="stButton"] > button:hover {
     color: #ffffff !important;
     font-size: 0.95rem !important;
     font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
     border: none !important;
     border-radius: 980px !important;
-    padding: 0.75rem 2.5rem !important;
+    padding: 0.78rem 2.5rem !important;
     width: 100% !important;
-    transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1) !important;
     box-shadow: 0 4px 20px rgba(10,132,255,0.4) !important;
+    margin-top: 0 !important;
+    transition: background 0.18s, box-shadow 0.18s !important;
 }
 .predict-btn div[data-testid="stButton"] > button:hover {
     background: #409cff !important;
     box-shadow: 0 6px 28px rgba(10,132,255,0.55) !important;
-    transform: scale(1.018) !important;
 }
 
 /* ── RESULT ── */
@@ -347,27 +353,29 @@ with right:
         cls_label = "amenity-label-on" if active else "amenity-label-off"
         cls_state = "amenity-state-on" if active else "amenity-state-off"
         state_txt = "Yes ✓" if active else "No"
-        return f"""
-        <div class="{cls_outer}">
-            <span class="amenity-icon">{icon}</span>
-            <span class="{cls_label}">{label}</span>
-            <span class="{cls_state}">{state_txt}</span>
-        </div>"""
+        return (
+            f'<div style="position:relative;">'
+            f'<div class="{cls_outer}">'
+            f'<span class="amenity-icon">{icon}</span>'
+            f'<span class="{cls_label}">{label}</span>'
+            f'<span class="{cls_state}">{state_txt}</span>'
+            f'</div></div>'
+        )
 
     a1, a2, a3 = st.columns(3)
     with a1:
         st.markdown(amenity_html("🛗", "Lift", st.session_state.lift), unsafe_allow_html=True)
-        if st.button("Toggle", key="btn_lift"):
+        if st.button("\u200c", key="btn_lift", help="Toggle Lift"):
             toggle("lift")
             st.rerun()
     with a2:
         st.markdown(amenity_html("📷", "CCTV", st.session_state.cctv), unsafe_allow_html=True)
-        if st.button("Toggle", key="btn_cctv"):
+        if st.button("\u200c", key="btn_cctv", help="Toggle CCTV"):
             toggle("cctv")
             st.rerun()
     with a3:
         st.markdown(amenity_html("⚡", "Generator", st.session_state.generator), unsafe_allow_html=True)
-        if st.button("Toggle", key="btn_generator"):
+        if st.button("\u200c", key="btn_generator", help="Toggle Generator"):
             toggle("generator")
             st.rerun()
 
@@ -583,3 +591,4 @@ st.markdown("""
     <p>For informational purposes only · Not financial advice · Sylhet, Bangladesh</p>
 </div>
 """, unsafe_allow_html=True)
+
