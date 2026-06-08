@@ -1,4 +1,5 @@
-import streamlit as st
+
+    import streamlit as st
 import pandas as pd
 import joblib
 import numpy as np
@@ -766,10 +767,8 @@ if predict:
                 marker_color=bar_colors,
                 marker_line_width=0,
             ))
-            fig4.update_layout(**PLOT_LAYOUT, title=dict(text="All Areas - Avg Price", font=dict(size=12, color="#8a96a8")),
-                               height=320, xaxis=dict(tickformat=".2s", gridcolor="rgba(255,255,255,0.05)"))
-            st.plotly_chart(fig4, use_container_width=True)
-
+            fig4.update_layout(**PLOT_LAYOUT, title=dict(text="All Areas - Avg Price", font=dict(size=12, color="#8a96a8")), height=320)
+fig4.update_xaxes(tickformat=".2s", gridcolor="rgba(255,255,255,0.05)")
     # ── SHAP EXPLAINABILITY ──
     st.markdown("""
     <div style="max-width:1100px;margin:0 auto;padding:0 2rem;">
