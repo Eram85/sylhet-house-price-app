@@ -354,9 +354,10 @@ PLOT_LAYOUT = dict(
     plot_bgcolor="rgba(0,0,0,0)",
     font=dict(family="DM Sans, sans-serif", color="#8a96a8", size=11),
     margin=dict(l=16, r=16, t=32, b=16),
-    xaxis=dict(gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.07)", zerolinecolor="rgba(255,255,255,0.07)"),
-    yaxis=dict(gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.07)", zerolinecolor="rgba(255,255,255,0.07)"),
 )
+
+# Applied individually per chart via update_xaxes / update_yaxes to avoid duplicate-keyword conflicts
+_AXIS = dict(gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.07)", zerolinecolor="rgba(255,255,255,0.07)")
 
 # ─────────────────────────────
 # LOAD MODEL & ARTEFACTS
@@ -707,8 +708,9 @@ if predict:
                            annotation_text="Your property", annotation_font_color="#3de8c8",
                            annotation_font_size=10)
             fig1.update_layout(**PLOT_LAYOUT, title=dict(text="Location Avg vs Your Price", font=dict(size=12, color="#8a96a8")), height=280)
-            fig1.update_yaxes(tickformat=".0s")
-            st.plotly_chart(fig1, use_container_width=True)
+            fig1.update_xaxes(**_AXIS)
+            fig1.update_yaxes(tickformat=".0s", **_AXIS)
+            st.plotly_chart(fig1, width="stretch")
 
         # Chart 2 — 5-year appreciation projection
         with ch2:
@@ -726,9 +728,9 @@ if predict:
                 hoverinfo="text",
             ))
             fig2.update_layout(**PLOT_LAYOUT, title=dict(text="5-Year Value Projection", font=dict(size=12, color="#8a96a8")), height=280)
-            fig2.update_xaxes(title_text="Years from now", tickvals=years, ticktext=[f"Yr {y}" for y in years])
-            fig2.update_yaxes(tickformat=".2s")
-            st.plotly_chart(fig2, use_container_width=True)
+            fig2.update_xaxes(title_text="Years from now", tickvals=years, ticktext=[f"Yr {y}" for y in years], **_AXIS)
+            fig2.update_yaxes(tickformat=".2s", **_AXIS)
+            st.plotly_chart(fig2, width="stretch")
 
         ch3, ch4 = st.columns(2, gap="medium")
 
@@ -750,7 +752,7 @@ if predict:
             ))
             fig3.update_layout(**PLOT_LAYOUT, title=dict(text="Value Breakdown", font=dict(size=12, color="#8a96a8")), height=280,
                                showlegend=True, legend=dict(font=dict(size=10, color="#8a96a8"), orientation="v"))
-            st.plotly_chart(fig3, use_container_width=True)
+            st.plotly_chart(fig3, width="stretch")
 
         # Chart 4 — All location comparison
         with ch4:
@@ -766,9 +768,10 @@ if predict:
                 marker_color=bar_colors,
                 marker_line_width=0,
             ))
-            fig4.update_layout(**PLOT_LAYOUT, title=dict(text="All Areas - Avg Price", font=dict(size=12, color="#8a96a8")),
-                               height=320, xaxis=dict(tickformat=".2s", gridcolor="rgba(255,255,255,0.05)"))
-            st.plotly_chart(fig4, use_container_width=True)
+            fig4.update_layout(**PLOT_LAYOUT, title=dict(text="All Areas - Avg Price", font=dict(size=12, color="#8a96a8")), height=320)
+            fig4.update_xaxes(tickformat=".2s", **_AXIS)
+            fig4.update_yaxes(**_AXIS)
+            st.plotly_chart(fig4, width="stretch")
 
     # ── SHAP EXPLAINABILITY ──
     st.markdown("""
