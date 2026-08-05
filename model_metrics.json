@@ -1,0 +1,37 @@
+{
+  "Linear Regression": {
+    "R2": 0.8407,
+    "MAE": 2404932,
+    "RMSE": 3176045
+  },
+  "Ridge Regression": {
+    "R2": 0.8405,
+    "MAE": 2420178,
+    "RMSE": 3178272
+  },
+  "Decision Tree": {
+    "R2": 0.6678,
+    "MAE": 3139095,
+    "RMSE": 4587316
+  },
+  "Random Forest": {
+    "R2": 0.8629,
+    "MAE": 2281356,
+    "RMSE": 2946670
+  },
+  "Gradient Boosting": {
+    "R2": 0.8767,
+    "MAE": 2148037,
+    "RMSE": 2794975
+  },
+  "XGBoost": {
+    "R2": 0.8681,
+    "MAE": 2228109,
+    "RMSE": 2890371
+  },
+  "SVR": {
+    "R2": 0.8263,
+    "MAE": 2549651,
+    "RMSE": 3316496
+  }
+}
