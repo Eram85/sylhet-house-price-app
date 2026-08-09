@@ -686,6 +686,13 @@ print("==============================")
 residuals   = np.exp(y_test.values) - np.exp(gbm_preds)
 residuals_L = residuals / 1e5   # in Lakh
 
+# Numerical residual summary
+print(f"  Mean Residual       : BDT {np.mean(residuals):,.0f}")
+print(f"  Mean Absolute Error : BDT {np.mean(np.abs(residuals)):,.0f}")
+print(f"  Residual Std. Dev.  : BDT {np.std(residuals):,.0f}")
+print(f"  Minimum Residual    : BDT {np.min(residuals):,.0f}")
+print(f"  Maximum Residual    : BDT {np.max(residuals):,.0f}")
+
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 fig.patch.set_facecolor(BG)
 
@@ -707,7 +714,9 @@ axes[1].yaxis.grid(True, zorder=0)
 axes[1].set_axisbelow(True)
 
 fig.tight_layout()
+fig.savefig("gradient_boosting_residual_analysis.png", dpi=300, bbox_inches="tight")
 plt.show()
+print("Residual analysis plot saved as gradient_boosting_residual_analysis.png")
 
 # =========================================================
 # 9. LEARNING CURVE — Gradient Boosting
@@ -727,6 +736,15 @@ train_std  = train_scores.std(axis=1)
 val_mean   = val_scores.mean(axis=1)
 val_std    = val_scores.std(axis=1)
 
+# Numerical learning-curve summary
+final_train_r2 = train_mean[-1]
+final_val_r2   = val_mean[-1]
+final_gap      = final_train_r2 - final_val_r2
+
+print(f"  Final Training R²   : {final_train_r2:.4f}")
+print(f"  Final Validation R² : {final_val_r2:.4f}")
+print(f"  Training–Validation Gap : {final_gap:.4f}")
+
 fig, ax = plt.subplots(figsize=(9, 6))
 fig.patch.set_facecolor(BG)
 ax.plot(train_sizes, train_mean, color=THESIS_BLUE, linewidth=2,
@@ -744,7 +762,9 @@ ax.legend()
 ax.yaxis.grid(True, zorder=0)
 ax.set_axisbelow(True)
 fig.tight_layout()
+fig.savefig("gradient_boosting_learning_curve.png", dpi=300, bbox_inches="tight")
 plt.show()
+print("Learning curve saved as gradient_boosting_learning_curve.png")
 
 # =========================================================
 # 10. MODEL COMPARISON
