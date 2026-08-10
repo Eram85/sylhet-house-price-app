@@ -1,20 +1,3 @@
-"""
-model.py  –  Sylhet Real Estate Price Prediction
-=================================================
-Pipeline
---------
-1.  Load & clean dataset
-2.  Exploratory visualisations (correlation heatmap, distributions)
-3.  Feature engineering
-4.  Proper three-way split: 60 % train | 20 % val | 20 % test
-    - Hyper-parameter search on train+val (CV inside that portion)
-    - Final hold-out evaluation on test only  → no data leakage
-5.  Seven models: Linear Regression, Ridge, Decision Tree,
-    Random Forest, Gradient Boosting, XGBoost, SVR  (all tuned)
-6.  Residual analysis, learning curve, model comparison
-7.  Save best model + artefacts
-"""
-
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -40,9 +23,8 @@ from sklearn.svm import SVR
 from sklearn.pipeline import Pipeline
 from xgboost import XGBRegressor
 
-# =========================================================
-# GLOBAL STYLE
-# =========================================================
+# Plot settings
+
 THESIS_BLUE = "#1A3A5C"
 ACCENT      = "#2E86AB"
 ACCENT2     = "#E84855"
@@ -76,18 +58,18 @@ plt.rcParams.update({
     "font.family":       "DejaVu Sans",
 })
 
-# =========================================================
-# 1. LOAD DATASET
-# =========================================================
+
+# 1. Load Dataset
+
 df = pd.read_csv("sylhet_real_estate.csv")
 df.columns = df.columns.str.strip()
 
 print("Columns:", df.columns.tolist())
 print(f"Raw dataset size: {df.shape}")
 
-# =========================================================
-# 2. CLEAN DATA
-# =========================================================
+
+# 2. Clean Data
+
 
 # --- Location ---
 df["Location"] = (
@@ -128,12 +110,11 @@ df["Price_Crore"] = df["Selling price (BDT)"] / 1e7
 
 print(f"Dataset size after cleaning: {df.shape}")
 
-# =========================================================
-# 3. OUTLIER DETECTION  (domain-informed threshold)
-# =========================================================
-print("\n==============================")
+
+# 3. OUTLIER DETECTION
+
 print("OUTLIER DETECTION")
-print("==============================")
+
 
 Q1  = df["Selling price (BDT)"].quantile(0.25)
 Q3  = df["Selling price (BDT)"].quantile(0.75)
@@ -162,9 +143,9 @@ if len(outliers) > 0:
 else:
     print("No outliers detected — full dataset retained.")
 
-# =========================================================
+
 # DESCRIPTIVE STATISTICS (Mean Values)
-# =========================================================
+
 print("\n" + "="*60)
 print("MEAN VALUES OF THE CLEANED DATASET")
 print("="*60)
@@ -181,11 +162,11 @@ print(mean_table)
 # Optional: save for thesis
 mean_table.to_csv("mean_values.csv", index=False)
 
-# =========================================================
-# 4. EXPLORATORY DATA ANALYSIS PLOTS
-# =========================================================
 
-# --- 4a. Price Distribution ---
+# 4. EXPLORATORY DATA ANALYSIS PLOTS
+
+
+#4a. Price Distribution
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 fig.patch.set_facecolor(BG)
 
@@ -210,7 +191,8 @@ fig.suptitle("Price Distributions (Raw vs Log-Transformed)",
 fig.tight_layout()
 plt.show()
 
-# --- 4b. Property Type Breakdown ---
+#4b. Property Type Breakdown
+
 pt_counts = df["Property Type"].value_counts()
 fig, ax = plt.subplots(figsize=(7, 5))
 fig.patch.set_facecolor(BG)
@@ -227,7 +209,7 @@ ax.set_axisbelow(True)
 fig.tight_layout()
 plt.show()
 
-# --- 4c. Avg Price per sqft by Location ---
+#4c. Avg Price per sqft by Location
 df["price_per_sqft"] = df["Selling price (BDT)"] / df["Size (sqft)"]
 loc_avg = (df.groupby("Location")["price_per_sqft"]
         .mean()
@@ -247,7 +229,7 @@ ax.tick_params(axis="y", length=0, labelsize=8)
 fig.tight_layout()
 plt.show()
 
-# --- 4d. Correlation Heatmap ---
+#4d. Correlation Heatmap
 numeric_df = df.select_dtypes(include=np.number).drop(
     columns=["Price_Crore", "price_per_sqft"], errors="ignore"
 )
@@ -267,9 +249,8 @@ ax.tick_params(axis="x", rotation=45)
 fig.tight_layout()
 plt.show()
 
-# =========================================================
 # 5. FEATURES & TARGET
-# =========================================================
+
 features = [
     "Size (sqft)",
     "Bedrooms",
@@ -295,12 +276,12 @@ X = pd.get_dummies(X, columns=["Location", "Property Type"])
 print(f"\nEncoded feature count : {X.shape[1]}")
 print("Property Type dummies :", [c for c in X.columns if "Property" in c])
 
-# =========================================================
+
 # 6. PROPER THREE-WAY SPLIT
-#    60 % train  |  20 % validation  |  20 % test
-#    • Hyper-parameter search (CV) runs on train+val
-#    • Hold-out test set is NEVER touched during training
-# =========================================================
+#     80 % development | 20 % independent test
+#     5-fold CV and hyperparameter tuning use development data
+#     Independent test set is kept unseen until final evaluation
+
 X_trainval, X_test, y_trainval, y_test = train_test_split(
     X, y, test_size=0.20, random_state=42
 )
@@ -317,9 +298,9 @@ X_val_sc       = scaler.transform(X_val)
 X_test_sc      = scaler.transform(X_test)
 X_trainval_sc  = scaler.transform(X_trainval)
 
-# =========================================================
+
 # HELPERS
-# =========================================================
+
 results = {}
 
 def evaluate(name, y_true_log, y_pred_log):
@@ -343,16 +324,13 @@ def run_cv(model, name, scaled=False):
     print(f"  CV R² : {np.round(cv, 4)}  mean={cv.mean():.4f} ±{cv.std():.4f}")
     return cv
 
-# =========================================================
-# 7. MODEL TRAINING & EVALUATION
-# =========================================================
 
-# ---------------------------------------------------------
+
+
 # 7.1  LINEAR REGRESSION
-# ---------------------------------------------------------
-print("\n==============================")
+
 print("1. LINEAR REGRESSION")
-print("==============================")
+
 
 lr_model = LinearRegression()
 lr_model.fit(X_train, y_train)
@@ -360,12 +338,10 @@ lr_preds = lr_model.predict(X_test)
 evaluate("Linear Regression", y_test, lr_preds)
 run_cv(LinearRegression(), "Linear Regression")
 
-# ---------------------------------------------------------
+
 # 7.2  RIDGE REGRESSION  (cross-validated alpha)
-# ---------------------------------------------------------
-print("\n==============================")
+
 print("2. RIDGE REGRESSION")
-print("==============================")
 
 ridge_cv_sel = RidgeCV(alphas=[0.01, 0.1, 1, 5, 10, 50, 100, 500], cv=5)
 ridge_cv_sel.fit(X_train_sc, y_train)
@@ -380,12 +356,11 @@ evaluate("Ridge Regression", y_test, ridge_preds)
 ridge_pipe = Pipeline([("scaler", StandardScaler()), ("ridge", Ridge(alpha=best_alpha))])
 run_cv(ridge_pipe, "Ridge Regression", scaled=False)
 
-# ---------------------------------------------------------
+
 # 7.3  DECISION TREE
-# ---------------------------------------------------------
-print("\n==============================")
+
 print("3. DECISION TREE REGRESSOR")
-print("==============================")
+
 
 dt_model = DecisionTreeRegressor(random_state=42, max_depth=10)
 dt_model.fit(X_train, y_train)
@@ -393,12 +368,11 @@ dt_preds = dt_model.predict(X_test)
 evaluate("Decision Tree", y_test, dt_preds)
 run_cv(DecisionTreeRegressor(random_state=42, max_depth=10), "Decision Tree")
 
-# ---------------------------------------------------------
+
 # 7.4  RANDOM FOREST  (RandomizedSearchCV on train+val)
-# ---------------------------------------------------------
-print("\n==============================")
+
 print("4. RANDOM FOREST")
-print("==============================")
+
 
 rf_param_dist = {
     "n_estimators":      [100, 200, 300, 400],
@@ -478,12 +452,10 @@ ax.yaxis.grid(True, zorder=0)
 ax.set_axisbelow(True)
 fig.tight_layout()
 plt.show()
-# ---------------------------------------------------------
+
 # 7.5  GRADIENT BOOSTING
-# ---------------------------------------------------------
-print("\n==============================")
+
 print("5. GRADIENT BOOSTING REGRESSOR")
-print("==============================")
 
 gbm_param_dist = {
     "n_estimators":  [200, 300, 400],
@@ -517,12 +489,9 @@ evaluate("Gradient Boosting", y_test, gbm_preds)
 run_cv(gbm_model, "Gradient Boosting")
 
 
-# ==========================================================
 # FEATURE IMPORTANCE (Gradient Boosting)
-# ==========================================================
-print("\n==============================")
+
 print("FEATURE IMPORTANCE (Gradient Boosting)")
-print("==============================")
 
 feature_importance = pd.DataFrame({
     "Feature": X.columns,
@@ -564,12 +533,11 @@ plt.title("Top 10 Feature Importance (Gradient Boosting)")
 plt.tight_layout()
 plt.show()
 
-# ---------------------------------------------------------
+
 # 7.6  XGBOOST
-# ---------------------------------------------------------
-print("\n==============================")
+
 print("6. XGBOOST REGRESSOR")
-print("==============================")
+
 
 xgb_param_dist = {
     "n_estimators":     [200, 300, 400],
@@ -594,7 +562,7 @@ run_cv(xgb_model, "XGBoost")
 # Feature Importance — XGBoost
 xgb_fi_df = (pd.DataFrame({"Feature": X.columns,
                             "Importance": xgb_model.feature_importances_})
-             .sort_values("Importance", ascending=False))
+                .sort_values("Importance", ascending=False))
 xgb_top = xgb_fi_df.head(10).copy()
 xgb_top["Feature"] = (
     xgb_top["Feature"]
@@ -651,12 +619,10 @@ ax.set_axisbelow(True)
 fig.tight_layout()
 plt.show()
 
-# ---------------------------------------------------------
+
 # 7.7  SVR  (now properly tuned with RandomizedSearchCV)
-# ---------------------------------------------------------
-print("\n==============================")
+
 print("7. SUPPORT VECTOR REGRESSOR")
-print("==============================")
 
 svr_param_dist = {
     "svr__C":       [0.1, 1, 10, 50, 100, 500],
@@ -676,12 +642,10 @@ svr_preds = svr_model.predict(X_test)
 evaluate("SVR", y_test, svr_preds)
 run_cv(svr_model, "SVR", scaled=False)
 
-# =========================================================
 # 8. RESIDUAL ANALYSIS — best model (Gradient Boosting)
-# =========================================================
-print("\n==============================")
+
 print("RESIDUAL ANALYSIS (Gradient Boosting)")
-print("==============================")
+
 
 residuals   = np.exp(y_test.values) - np.exp(gbm_preds)
 residuals_L = residuals / 1e5   # in Lakh
@@ -718,12 +682,9 @@ fig.savefig("gradient_boosting_residual_analysis.png", dpi=300, bbox_inches="tig
 plt.show()
 print("Residual analysis plot saved as gradient_boosting_residual_analysis.png")
 
-# =========================================================
 # 9. LEARNING CURVE — Gradient Boosting
-# =========================================================
-print("\n==============================")
+
 print("LEARNING CURVE (Gradient Boosting)")
-print("==============================")
 
 train_sizes, train_scores, val_scores = learning_curve(
     gbm_model, X_trainval, y_trainval,
@@ -766,9 +727,7 @@ fig.savefig("gradient_boosting_learning_curve.png", dpi=300, bbox_inches="tight"
 plt.show()
 print("Learning curve saved as gradient_boosting_learning_curve.png")
 
-# =========================================================
 # 10. MODEL COMPARISON
-# =========================================================
 print("\n")
 print("=" * 65)
 print("MODEL COMPARISON SUMMARY  (evaluated on hold-out test set)")
@@ -817,9 +776,7 @@ ax.legend(handles=[
 fig.tight_layout()
 plt.show()
 
-# =========================================================
 # 11. SAMPLE PREDICTION — all 7 models
-# =========================================================
 sample_raw = pd.DataFrame([{
     "Size (sqft)":        2500,
     "Bedrooms":           3,
@@ -852,9 +809,8 @@ preds_sample = {
 for model_name, price in preds_sample.items():
     print(f"  {model_name:<22} : BDT {price:,}")
 
-# =========================================================
 # 12. PREDICTION INTERVAL (±1 RMSE from best model)
-# =========================================================
+
 best_model_name = max(results, key=lambda x: results[x]["R2"])
 best_rmse       = results[best_model_name]["RMSE"]
 print(f"\nBest model : {best_model_name}  (R² = {results[best_model_name]['R2']:.4f})")
@@ -864,9 +820,8 @@ print(f"\nGradient Boosting estimate for sample property:")
 print(f"  Point estimate : BDT {gbm_sample_price:,}")
 print(f"  ±1 RMSE range  : BDT {int(gbm_sample_price - best_rmse):,}  –  BDT {int(gbm_sample_price + best_rmse):,}")
 
-# =========================================================
+
 # 13. SAVE MODELS & ARTEFACTS
-# =========================================================
 joblib.dump({
     "model": gbm_model,
     "columns": list(X.columns),
